@@ -39,23 +39,28 @@ if st.sidebar.button("Get Data"):
         # Show success message
         st.success(f"Data successfully extracted for {ticker}")
         
-        # Display Company Information
+        # Display Company Information safely
         st.subheader("Company Information")
-        info = stock.info
+        
+        try:
+            # Attempt to fetch info, but be prepared for a RateLimitError
+            info = stock.info
+            company_name = info.get("longName", "N/A")
+            sector = info.get("sector", "N/A")
+            industry = info.get("industry", "N/A")
+            market_cap = info.get("marketCap", "N/A")
+            website = info.get("website", "N/A")
 
-        company_name = info.get("longName", "N/A")
-        sector = info.get("sector", "N/A")
-        industry = info.get("industry", "N/A")
-        market_cap = info.get("marketCap", "N/A")
-        website = info.get("website", "N/A")
+            st.write(f"**Company Name:** {company_name}")
+            st.write(f"**Sector:** {sector}")
+            st.write(f"**Industry:** {industry}")
+            st.write(f"**Market Cap:** {market_cap}")
+            st.write(f"**Website:** {website}")
+            
+        except Exception as e:
+            st.warning("⚠️ Yahoo Finance is currently rate-limiting company info requests. Only price data will be shown.")
 
-        st.write(f"**Company Name:** {company_name}")
-        st.write(f"**Sector:** {sector}")
-        st.write(f"**Industry:** {industry}")
-        st.write(f"**Market Cap:** {market_cap}")
-        st.write(f"**Website:** {website}")
-
-        # Display Stock Data
+        # Display Stock Data (This usually bypasses the strict rate limit)
         st.subheader("Historical Price Data")
         st.dataframe(df)
 
